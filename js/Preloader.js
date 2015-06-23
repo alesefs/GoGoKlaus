@@ -10,8 +10,22 @@ GoGoKlaus.Preloader.prototype = {
 		this.preloadBar = this.add.sprite(((this.game.world.width - 300)/2), ((this.game.world.height - 125)/2), 'preloaderBar');
 		this.game.load.setPreloadSprite(this.preloadBar);
 
+		//btns
+		this.game.load.spritesheet('play-game', 'imgs/btn-jogar.png', 150, 55);
+		this.game.load.spritesheet('help-screen', 'imgs/btn-ajuda.png', 150, 55);
+		this.game.load.image('close-help', 'imgs/btn-close-help.png');
+		this.game.load.image('hud', 'imgs/balls_huds.png');
+		this.game.load.spritesheet('pause-screen', 'imgs/btn-pause.png', 46, 50);
 
-		//this.game.load.image('logo-full', 'imgs/logo-full.png');
+		//imgs
+		this.game.load.image('snow-flake', 'imgs/snow-flake.png');
+		this.game.load.image('logo-noel', 'imgs/logo-gogo-noel.png');
+
+		this.game.load.image('help-view', 'imgs/help-screen.png');
+
+		this.game.load.spritesheet('gifts', 'imgs/gifts.png', 50, 50);
+		
+
 	},
 
 	create: function() {
