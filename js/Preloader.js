@@ -13,6 +13,7 @@ GoGoKlaus.Preloader.prototype = {
 		//btns
 		this.game.load.spritesheet('play-game', 'imgs/btn-jogar.png', 150, 55);
 		this.game.load.spritesheet('help-screen', 'imgs/btn-ajuda.png', 150, 55);
+		this.game.load.spritesheet('menu-screen', 'imgs/btn-menu.png', 150, 55);
 		this.game.load.image('close-help', 'imgs/btn-close-help.png');
 		this.game.load.image('hud', 'imgs/balls_huds.png');
 		this.game.load.spritesheet('pause-screen', 'imgs/btn-pause.png', 46, 50);
