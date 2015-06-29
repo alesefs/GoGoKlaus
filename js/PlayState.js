@@ -10,13 +10,13 @@ GoGoKlaus.PlayState = function(game) {
 	myBitmap = null;
 	grd = null;
 
+
 	/*hud*/
 	huds = null;
 	metersText = null;
 	meters = 0;
 	giftsText = null;
 	styleHuds = null;
-	score = 0;
 
 
 	/*main menu zone vars*/
@@ -25,14 +25,23 @@ GoGoKlaus.PlayState = function(game) {
 	btnReplay = null;
 	btnHelp = null;
 	btnMenu = null;
+	btnFace = null;
+
+	/*score rank*/
+	rectScore = null;
+	rankMainText = null;
+	score = 0;
+	bestScore = localStorage.getItem("davids") || 0;
 
 	/*help vars*/
 	helpSceen = null;
 	btnCloseHelp = null;
 
-
+	inMenu = true;
 	inGame = false;
 	gameOver = false;
+
+	limits = null;
 
 	gifts = null;
 	catchGifts = 0;
@@ -54,14 +63,7 @@ GoGoKlaus.PlayState.prototype = {
 
 		myBitmap = this.game.add.bitmapData(600, 400);
 		this.game.add.sprite(0, 0, myBitmap);
-		grd = myBitmap.context.createLinearGradient(0,0,0,400);
-		grd.addColorStop(0,"#141625");
-		grd.addColorStop(100/400,"#171F2C");
-		grd.addColorStop(200/400,"#1E2434");
-		grd.addColorStop(300/400,"#222939");
-		myBitmap.context.fillStyle = grd;
-		myBitmap.context.fillRect(0,0,600,400);
-
+		
 		for(var i = 0; i < countHill; i++){
 			superHills = this.game.add.graphics(0, 0);
 			superHills.beginFill(0xc0c0c0);
@@ -92,23 +94,32 @@ GoGoKlaus.PlayState.prototype = {
 		logoNoel = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY - 40, 'logo-noel');
 		logoNoel.anchor.setTo(0.5, 0.5);
 
-		btnMenu = this.game.add.button(this.game.world.centerX - 100, 730, 'menu-screen', this.menuGame, this, 1, 0, 2);
-		btnMenu.anchor.setTo(0.5,0.5);
-
-		btnPlay = this.game.add.button(this.game.world.centerX - 100, this.game.world.centerY + 130, 'play-game', this.startGame, this, 1, 0, 2);
-		btnPlay.anchor.setTo(0.5,0.5);
-
-		btnReplay = this.game.add.button(this.game.world.centerX + 100, 730, 'play-game', this.restartGame, this, 1, 0, 2);
-		btnReplay.anchor.setTo(0.5,0.5);
-
-		btnHelp = this.game.add.button(this.game.world.centerX + 100, this.game.world.centerY + 130, 'help-screen', this.openHelp, this, 1, 0, 2);
-		btnHelp.anchor.setTo(0.5,0.5);
+		rectScore = this.game.add.graphics(0, 0);
+		rectScore.beginFill(0x37B48A, 1);
+    	rectScore.drawRect(this.game.world.width - 140, this.game.world.centerY + 95, 140, 80);
 
 		helpSceen = this.game.add.sprite(700, 0, 'help-view');
 		helpSceen.anchor.setTo(0, 0);
 
-		huds = this.game.add.sprite(20, -60, 'hud');
-		huds.anchor.setTo(0, 0);
+		btnMenu = this.game.add.button(this.game.world.centerX - 100, 730, 'btns', this.menuGame, this, 2, 2, 2);
+		btnMenu.anchor.setTo(0.5,0.5);
+		btnMenu.scale.setTo(0.75, 0.75);
+
+		btnPlay = this.game.add.button(this.game.world.centerX - 60, this.game.world.centerY + 130, 'btns', this.startGame, this, 0, 0, 0);
+		btnPlay.anchor.setTo(0.5,0.5);
+		btnPlay.scale.setTo(0.75, 0.75);
+
+		btnReplay = this.game.add.button(this.game.world.centerX, 730, 'btns', this.restartGame, this, 0, 0, 0);
+		btnReplay.anchor.setTo(0.5,0.5);
+		btnReplay.scale.setTo(0.75, 0.75);
+
+		btnHelp = this.game.add.button(this.game.world.centerX + 60, this.game.world.centerY + 130, 'btns', this.openHelp, this, 1, 1, 1);
+		btnHelp.anchor.setTo(0.5,0.5);
+		btnHelp.scale.setTo(0.75, 0.75);
+
+		btnFace = this.game.add.button(this.game.world.centerX + 100, 730, 'btns', this.openFace, this, 3, 3, 3);
+		btnFace.anchor.setTo(0.5,0.5);
+		btnFace.scale.setTo(0.75, 0.75);
 
 		btnCloseHelp = this.game.add.button(630, 0, 'close-help', this.closeHelp, this, 0, 0, 0);
 		btnCloseHelp.anchor.setTo(0, 0);
@@ -118,16 +129,29 @@ GoGoKlaus.PlayState.prototype = {
 
 		btnResume = this.game.add.button(this.game.world.centerX + 175, -60, 'pause-screen', this.pauseGame, this, 1, 1, 1);
 		btnResume.anchor.setTo(0, 0);
+		
+		huds = this.game.add.sprite(20, -60, 'hud');
+		huds.anchor.setTo(0, 0);
 
 		stylePause = { font: "50px Ruge Boogie", fill: "#ff0044", align: "left", stroke: "#ff0044", strokeThickness: 2 };
 		styleHuds = { font: "20px Ruge Boogie", fill: "#ffffff", align: "left"};
+		styleHuds = { font: "20px Ruge Boogie", fill: "#ffffff", align: "center"};
 		
 		metersText = this.game.add.text(50, -60, "0", styleHuds);
 		giftsText = this.game.add.text(50, -60, "0", styleHuds);
 
+		rankMainText = this.game.add.text(this.game.world.width - 130, this.game.world.centerY + 110, "Maior Recuperação: \n " + bestScore, styleHuds);
+
+		limits = this.game.add.sprite(5, 0, 'limits');
+		this.game.physics.enable(limits, Phaser.Physics.ARCADE);
+		limits.body.immovable = true;
+		limits.body.enable = true;
+		limits.anchor.setTo(0, 0);
+
 		gifts = this.game.add.group();
 		gifts.enableBody = true;
-    	gifts.physicsBodyType = Phaser.Physics.ARCADE;
+		this.game.physics.enable(gifts, Phaser.Physics.ARCADE);
+    	//gifts.physicsBodyType = Phaser.Physics.ARCADE;
     	
    	},
 
@@ -142,9 +166,20 @@ GoGoKlaus.PlayState.prototype = {
 		if(gameOver){
 			this.overGame();
 		}
+
+		this.game.physics.arcade.collide(gifts, limits, this.getLimits, null, this);
 	},
 
 	changeBg: function(){
+		if(inMenu){
+			grd = myBitmap.context.createLinearGradient(0,0,0,400);
+			grd.addColorStop(0,"#141625");
+			grd.addColorStop(100/400,"#171F2C");
+			grd.addColorStop(200/400,"#1E2434");
+			grd.addColorStop(300/400,"#222939");
+			myBitmap.context.fillStyle = grd;
+			myBitmap.context.fillRect(0,0,600,400);
+		}
 		if(inGame){
 			//this.game.stage.backgroundColor = '#15162d';
 			grd = myBitmap.context.createLinearGradient(0,0,0,400);
@@ -174,6 +209,9 @@ GoGoKlaus.PlayState.prototype = {
 		this.game.add.tween(logoNoel).to({ y: 600 }, 500, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnPlay).to({ y: 730 }, 500, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnHelp).to({ y: 730 }, 500, Phaser.Easing.Linear.None, true);
+
+		this.game.add.tween(rectScore).to({ y: 730 }, 500, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(rankMainText).to({ y: 730 }, 500, Phaser.Easing.Linear.None, true);
 	},
 
 	closeHelp: function(){
@@ -183,6 +221,9 @@ GoGoKlaus.PlayState.prototype = {
 		this.game.add.tween(logoNoel).to({ y: this.game.world.centerY - 40 }, 500, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnPlay).to({ y: this.game.world.centerY + 130 }, 500, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnHelp).to({ y: this.game.world.centerY + 130 }, 500, Phaser.Easing.Linear.None, true);
+
+		this.game.add.tween(rectScore).to({ y: 0 }, 500, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(rankMainText).to({ y: this.game.world.centerY + 110 }, 500, Phaser.Easing.Linear.None, true);
 	},
 
 	pauseGame: function(){
@@ -205,6 +246,9 @@ GoGoKlaus.PlayState.prototype = {
 		this.game.add.tween(logoNoel).to({ y: 600 }, 500, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnPlay).to({ y: 730 }, 500, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnHelp).to({ y: 730 }, 500, Phaser.Easing.Linear.None, true);
+
+		this.game.add.tween(rectScore).to({ y: 730 }, 500, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(rankMainText).to({ y: 730 }, 500, Phaser.Easing.Linear.None, true);
 		
 		inGame = true;
 	},
@@ -216,19 +260,29 @@ GoGoKlaus.PlayState.prototype = {
 		giftTimeDelay = 0;
 		giftDelay = 10;
 		meters = 0;
+		score = 0;
 
 		this.game.add.tween(btnReplay).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnMenu).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(btnFace).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
 	},
 
 	overGame: function(){
 		this.game.add.tween(btnPause).to({ y: -60 }, 150, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(huds).to({ y: -60 }, 150, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(giftsText).to({ y: -60 }, 150, Phaser.Easing.Linear.None, true);
-		this.game.add.tween(metersText).to({ y: -60 }, 150, Phaser.Easing.Linear.None, true);
+		//this.game.add.tween(metersText).to({ y: -60 }, 150, Phaser.Easing.Linear.None, true);
 
 		this.game.add.tween(btnReplay).to({ y: this.game.world.centerY + 130 }, 150, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnMenu).to({ y: this.game.world.centerY + 130 }, 150, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(btnFace).to({ y: this.game.world.centerY + 130 }, 150, Phaser.Easing.Linear.None, true);
+
+		bestScore = localStorage.getItem("davids", score) || 0;
+		if (score > bestScore){
+            localStorage.setItem("davids", score);
+            metersText.setText("novo recorde! \n " + score); 
+        }
+        rankMainText.text = "Maior Recuperação: \n " + bestScore;
 	},
 
 	menuGame: function(){
@@ -238,17 +292,22 @@ GoGoKlaus.PlayState.prototype = {
 		giftTimeDelay = 0;
 		giftDelay = 10;
 		meters = 0;
+		score = 0;
 		
 		this.game.add.tween(btnReplay).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnMenu).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(btnFace).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
 
 		this.game.add.tween(logoNoel).to({ y: this.game.world.centerY - 40 }, 500, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnPlay).to({ y: this.game.world.centerY + 130 }, 500, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnHelp).to({ y: this.game.world.centerY + 130 }, 500, Phaser.Easing.Linear.None, true);
 
-		//facebook
-		window.open ('https://www.facebook.com/dialog/feed?app_id=668955493239235&link=http://www.dhaw.co.nf/&picture=http://c1.staticflickr.com/1/420/19199921291_274741349e.jpg&name=Noel, Salve o natal!&caption=http://www.dhaw.co.nf/&description=Eu recuperei ' + giftDelay  + ' presentes. Você pode me vencer?&redirect_uri=http://www.dhaw.co.nf/');
+		this.game.add.tween(rectScore).to({ y: 0 }, 500, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(rankMainText).to({ y: this.game.world.centerY + 110 }, 500, Phaser.Easing.Linear.None, true);
+	},
 
+	openFace: function(){
+		window.open ('https://www.facebook.com/dialog/feed?app_id=668955493239235&link=http://www.dhaw.co.nf/&picture=http://c1.staticflickr.com/1/420/19199921291_274741349e.jpg&name=Noel, Salve o natal!&caption=http://www.dhaw.co.nf/&description=Eu recuperei ' + score  + ' presentes. Você pode me vencer?&redirect_uri=http://www.dhaw.co.nf/');
 	},
 
 	onGame: function(){
@@ -258,17 +317,17 @@ GoGoKlaus.PlayState.prototype = {
 		this.game.add.tween(metersText).to({ y: 31 }, 150, Phaser.Easing.Linear.None, true);
 
 		meters += this.time.elapsed/1000;
-		metersText.text = Math.round(meters);
+		metersText.text = Math.round(meters) + " / " + score;
 
 		giftTimeDelay += this.time.elapsed/1000;
 		if(giftTimeDelay > giftDelay){
             giftTimeDelay = 0;
-            giftDelay = this.game.rnd.integerInRange(3, 10);
+            giftDelay = this.game.rnd.integerInRange(3, 5);
             this.createGifts();
 		}
 		giftsText.text = Math.round(giftTimeDelay) + "/" + giftDelay;
 
-		if(meters >= 10){
+		if(meters >= 40){
 			inGame = false;
 			gameOver = true;
 		}
@@ -276,9 +335,20 @@ GoGoKlaus.PlayState.prototype = {
 
 	createGifts: function(){
 		var gift = gifts.create(600 , this.game.rnd.integerInRange(50, 350), 'gifts', this.game.rnd.integerInRange(0, 5));
+        this.game.physics.enable(gift, Phaser.Physics.ARCADE);
         gift.anchor.set(0.5);
         gift.scale.set(0.75, 0.75);
         gift.body.velocity.x = -100;
+	},
+
+	getLimits: function(limits, gift){
+		gift.kill();
+		if(inGame){
+			score += 1;
+		} else {
+			score += 0;
+		}
+		metersText.text = Math.round(meters) + " / " + score;
 	}
 
 

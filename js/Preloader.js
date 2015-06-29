@@ -17,9 +17,11 @@ GoGoKlaus.Preloader.prototype = {
 		this.game.load.image('close-help', 'imgs/btn-close-help.png');
 		this.game.load.image('hud', 'imgs/balls_huds.png');
 		this.game.load.spritesheet('pause-screen', 'imgs/btn-pause.png', 46, 50);
+		this.game.load.spritesheet('btns', 'imgs/btns.png', 100, 100);
 
 		//imgs
 		this.game.load.image('snow-flake', 'imgs/snow-flake.png');
+		this.game.load.image('limits', 'imgs/limits.jpg');
 		this.game.load.image('logo-noel', 'imgs/logo-gogo-noel.png');
 
 		this.game.load.image('help-view', 'imgs/help-screen.png');
