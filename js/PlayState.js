@@ -41,6 +41,9 @@ GoGoKlaus.PlayState = function(game) {
 	inGame = false;
 	gameOver = false;
 
+	gameOverText = null;
+	recoveryGiftsText = null;
+
 	limits = null;
 
 	gifts = null;
@@ -101,46 +104,55 @@ GoGoKlaus.PlayState.prototype = {
 		helpSceen = this.game.add.sprite(700, 0, 'help-view');
 		helpSceen.anchor.setTo(0, 0);
 
-		btnMenu = this.game.add.button(this.game.world.centerX - 100, 730, 'btns', this.menuGame, this, 2, 2, 2);
+		btnMenu = this.game.add.button(this.game.world.centerX - 100, 730, 'btns', this.menuGame, this, 4, 4, 4);
 		btnMenu.anchor.setTo(0.5,0.5);
-		btnMenu.scale.setTo(0.75, 0.75);
+		btnMenu.scale.setTo(0.65, 0.65);
 
-		btnPlay = this.game.add.button(this.game.world.centerX - 60, this.game.world.centerY + 130, 'btns', this.startGame, this, 0, 0, 0);
+		btnPlay = this.game.add.button(this.game.world.centerX - 60, this.game.world.centerY + 130, 'btns', this.startGame, this, 1, 1, 1);
 		btnPlay.anchor.setTo(0.5,0.5);
-		btnPlay.scale.setTo(0.75, 0.75);
+		btnPlay.scale.setTo(0.65, 0.65);
 
-		btnReplay = this.game.add.button(this.game.world.centerX, 730, 'btns', this.restartGame, this, 0, 0, 0);
+		btnReplay = this.game.add.button(this.game.world.centerX, 730, 'btns', this.restartGame, this, 1, 1, 1);
 		btnReplay.anchor.setTo(0.5,0.5);
-		btnReplay.scale.setTo(0.75, 0.75);
+		btnReplay.scale.setTo(0.65, 0.65);
 
-		btnHelp = this.game.add.button(this.game.world.centerX + 60, this.game.world.centerY + 130, 'btns', this.openHelp, this, 1, 1, 1);
+		btnHelp = this.game.add.button(this.game.world.centerX + 60, this.game.world.centerY + 130, 'btns', this.openHelp, this, 0, 0, 0);
 		btnHelp.anchor.setTo(0.5,0.5);
-		btnHelp.scale.setTo(0.75, 0.75);
+		btnHelp.scale.setTo(0.65, 0.65);
 
-		btnFace = this.game.add.button(this.game.world.centerX + 100, 730, 'btns', this.openFace, this, 3, 3, 3);
+		btnFace = this.game.add.button(this.game.world.centerX + 100, 730, 'btns', this.openFace, this, 5, 5, 5);
 		btnFace.anchor.setTo(0.5,0.5);
-		btnFace.scale.setTo(0.75, 0.75);
+		btnFace.scale.setTo(0.65, 0.65);
 
 		btnCloseHelp = this.game.add.button(630, 0, 'close-help', this.closeHelp, this, 0, 0, 0);
 		btnCloseHelp.anchor.setTo(0, 0);
 
-		btnPause = this.game.add.button(this.game.world.centerX + 175, -60, 'pause-screen', this.pauseGame, this, 0, 0, 0);
+		btnPause = this.game.add.button(this.game.world.centerX + 175, -75, 'btns', this.pauseGame, this, 2, 2, 2);
 		btnPause.anchor.setTo(0, 0);
+		btnPause.scale.setTo(0.65, 0.65);
 
-		btnResume = this.game.add.button(this.game.world.centerX + 175, -60, 'pause-screen', this.pauseGame, this, 1, 1, 1);
+		btnResume = this.game.add.button(this.game.world.centerX + 175, -75, 'btns', this.pauseGame, this, 3, 3, 3);
 		btnResume.anchor.setTo(0, 0);
+		btnResume.scale.setTo(0.65, 0.65);
 		
-		huds = this.game.add.sprite(20, -60, 'hud');
+		huds = this.game.add.sprite(20, -200, 'hud');
 		huds.anchor.setTo(0, 0);
+		huds.scale.setTo(0.25, 0.25);
 
 		stylePause = { font: "50px Ruge Boogie", fill: "#ff0044", align: "left", stroke: "#ff0044", strokeThickness: 2 };
-		styleHuds = { font: "20px Ruge Boogie", fill: "#ffffff", align: "left"};
 		styleHuds = { font: "20px Ruge Boogie", fill: "#ffffff", align: "center"};
+		styleScore = { font: "30px Ruge Boogie", fill: "#ffffff", align: "center"};
+		styleOver = { font: "75px Ruge Boogie", fill: "#ffffff", align: "center", stroke: "#c0c0c0", strokeThickness: 2 };
 		
 		metersText = this.game.add.text(50, -60, "0", styleHuds);
 		giftsText = this.game.add.text(50, -60, "0", styleHuds);
 
 		rankMainText = this.game.add.text(this.game.world.width - 130, this.game.world.centerY + 110, "Maior Recuperação: \n " + bestScore, styleHuds);
+
+
+		gameOverText = this.game.add.text(100, -120, "GAME OVER", styleOver); 
+		recoveryGiftsText = this.game.add.text(200, -80, "Presentes Recuperados: \n" + score, styleScore); 
+
 
 		limits = this.game.add.sprite(5, 0, 'limits');
 		this.game.physics.enable(limits, Phaser.Physics.ARCADE);
@@ -235,7 +247,7 @@ GoGoKlaus.PlayState.prototype = {
 					event.x <= this.game.world.centerX + 225 &&
 					event.y <= 60){
 					this.game.paused = false;
-					btnResume.y = -60;
+					btnResume.y = -75;
 					pauseText.destroy();
 					pause = false;
 				}
@@ -262,16 +274,23 @@ GoGoKlaus.PlayState.prototype = {
 		meters = 0;
 		score = 0;
 
+		this.game.add.tween(gameOverText).to({ y: -150 }, 50, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(recoveryGiftsText).to({ y: -125 }, 50, Phaser.Easing.Linear.None, true);
+
 		this.game.add.tween(btnReplay).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnMenu).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnFace).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
 	},
 
 	overGame: function(){
-		this.game.add.tween(btnPause).to({ y: -60 }, 150, Phaser.Easing.Linear.None, true);
-		this.game.add.tween(huds).to({ y: -60 }, 150, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(btnPause).to({ y: -75 }, 150, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(huds).to({ y: -200 }, 150, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(giftsText).to({ y: -60 }, 150, Phaser.Easing.Linear.None, true);
-		//this.game.add.tween(metersText).to({ y: -60 }, 150, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(metersText).to({ y: -60 }, 150, Phaser.Easing.Linear.None, true);
+
+		this.game.add.tween(gameOverText).to({ y: this.game.world.centerY - 150 }, 50, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(recoveryGiftsText).to({ y: this.game.world.centerY - 25 }, 50, Phaser.Easing.Linear.None, true);
+		recoveryGiftsText.text = "Presentes Recuperados: \n" + score;
 
 		this.game.add.tween(btnReplay).to({ y: this.game.world.centerY + 130 }, 150, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnMenu).to({ y: this.game.world.centerY + 130 }, 150, Phaser.Easing.Linear.None, true);
@@ -294,6 +313,9 @@ GoGoKlaus.PlayState.prototype = {
 		meters = 0;
 		score = 0;
 		
+		this.game.add.tween(gameOverText).to({ y: -150 }, 50, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(recoveryGiftsText).to({ y: -125 }, 50, Phaser.Easing.Linear.None, true);
+
 		this.game.add.tween(btnReplay).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnMenu).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
 		this.game.add.tween(btnFace).to({ y: 730 }, 150, Phaser.Easing.Linear.None, true);
@@ -327,7 +349,7 @@ GoGoKlaus.PlayState.prototype = {
 		}
 		giftsText.text = Math.round(giftTimeDelay) + "/" + giftDelay;
 
-		if(meters >= 40){
+		if(meters >= 20){
 			inGame = false;
 			gameOver = true;
 		}
