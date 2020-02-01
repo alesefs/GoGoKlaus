@@ -7,11 +7,12 @@ GoGoKlaus.Boot.prototype = {
 	},
 
 	create: function() {
-		this.game.input.maxPointers = 1;
-		/*this.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+		this.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
 		this.scale.pageAlignHorizontally = true;
 		this.scale.pageAlignVertically = true;
-		this.scale.setScreenSize(true);*/
+		this.scale.setScreenSize(true);
+		this.scale.forceOrientation(true, true);
+		this.game.input.maxPointers = 1;
 		this.game.state.start('Preloader');
 	}
 };
